@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        caption="msg://browseCaption"
+        focusComponent="orderTable"
+        messagesPack="com.company.checkcompositionoffragments.web.screens.order">
+    <data readOnly="true">
+        <collection id="ordersDc"
+                    class="com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView"
+                    view="_local">
+            <loader id="ordersDl">
+                <query>
+                    <![CDATA[select e from checkcompositionoffragments_OrderWithCustomerDbView e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="orderTable"
+            spacing="true">
+        <filter id="filter"
+                dataLoader="ordersDl">
+            <properties include=".*"/>
+        </filter>
+        <fragment id="orderTable" screen="checkcompositionoffragments_OrderWithCustomerTable">
+            <properties>
+                <property name="dc" ref="ordersDc"/>
+<!--                <property name="dl" ref="ordersDl"/>-->
+            </properties>
+        </fragment>
+        <hbox id="lookupActions" spacing="true" visible="false">
+            <button action="lookupSelectAction"/>
+            <button action="lookupCancelAction"/>
+        </hbox>
+    </layout>
+</window>

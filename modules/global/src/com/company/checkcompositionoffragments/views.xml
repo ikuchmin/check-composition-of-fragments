@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<views xmlns="http://schemas.haulmont.com/cuba/view.xsd">
+
+    <view entity="checkcompositionoffragments_OrderItem" name="orderItem-edit-view" extends="_local">
+        <property name="product" view="_minimal"/>
+    </view>
+    <view entity="checkcompositionoffragments_Order" name="order-edit-view" extends="_local">
+        <property name="customer" view="_minimal"/>
+        <property name="orderItems" view="_minimal">
+            <property name="product" view="_minimal"/>
+        </property>
+    </view>
+</views>
