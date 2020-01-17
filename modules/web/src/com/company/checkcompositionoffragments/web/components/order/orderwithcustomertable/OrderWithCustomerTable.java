@@ -1,12 +1,15 @@
-package com.company.checkcompositionoffragments.web.components.order.orderextendtable;
+package com.company.checkcompositionoffragments.web.components.order.orderwithcustomertable;
 
 import com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView;
 import com.company.checkcompositionoffragments.entity.Order;
 import com.company.checkcompositionoffragments.web.screens.order.OrderEdit;
 import com.haulmont.cuba.core.global.Metadata;
+import com.haulmont.cuba.gui.ScreenBuilders;
 import com.haulmont.cuba.gui.Screens;
 import com.haulmont.cuba.gui.components.Action;
 import com.haulmont.cuba.gui.components.GroupTable;
+import com.haulmont.cuba.gui.components.data.table.ContainerGroupTableItems;
+import com.haulmont.cuba.gui.components.data.table.ContainerTableItems;
 import com.haulmont.cuba.gui.model.CollectionContainer;
 import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.model.HasLoader;
@@ -22,10 +25,7 @@ import javax.inject.Inject;
 public class OrderWithCustomerTable extends ScreenFragment {
 
     @Inject
-    protected Metadata metadata;
-
-    @Inject
-    protected Screens screens;
+    protected ScreenBuilders screenBuilders;
 
     @Inject
     protected GroupTable<OrderWithCustomerDbView> ordersTable;
@@ -36,18 +36,17 @@ public class OrderWithCustomerTable extends ScreenFragment {
 
     @Subscribe
     protected void onInit(InitEvent event) {
-        getScreenData().registerContainer("ordersDc", dc);
+        ordersTable.setItems(new ContainerGroupTableItems<>(dc));
+        //getScreenData().registerContainer("ordersDc", dc);
     }
 
     @Subscribe("ordersTable.create")
     protected void onOrdersTableCreate(Action.ActionPerformedEvent event) {
-        Order order = metadata.create(Order.class);
-
-        OrderEdit orderEdit = screens.create(OrderEdit.class);
-        orderEdit.setEntityToEdit(order);
-
-        orderEdit.addAfterCloseListener(e -> ((HasLoader) dc).getLoader().load());
-        orderEdit.show();
+        screenBuilders.editor(Order.class, this)
+                .withScreenClass(OrderEdit.class)
+                .withAfterCloseListener(e -> dl.load())
+                .newEntity()
+                .show();
     }
 
     public CollectionContainer<OrderWithCustomerDbView> getDc() {

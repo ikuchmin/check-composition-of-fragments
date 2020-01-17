@@ -71,5 +71,5 @@ create or replace view CHECKCOMPOSITIONOFFRAGMENTS_ORDER_WITH_CUSTOMER_VIEW as
 select o.*,
        c.first_name || ' ' || c.last_name as customer
 from CHECKCOMPOSITIONOFFRAGMENTS_ORDER as o
-         join CHECKCOMPOSITIONOFFRAGMENTS_CUSTOMER c on o.customer_id = c.id^
+         left join CHECKCOMPOSITIONOFFRAGMENTS_CUSTOMER c on o.customer_id = c.id^
 -- end CUBADBVIEWS_ORDER_WITH_PRODUCTS

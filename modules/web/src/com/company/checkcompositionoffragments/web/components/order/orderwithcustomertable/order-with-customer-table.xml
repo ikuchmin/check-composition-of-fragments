@@ -3,13 +3,13 @@
     <data>
         <collection id="ordersDc"
                   class="com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView"
-                  view="_local" provided="true">
+                  view="_local">
             <loader/>
         </collection>
     </data>
-    <layout>
+    <layout expand="ordersTable">
         <groupTable id="ordersTable"
-                    width="100%" height="100%"
+                    width="100%"
                     dataContainer="ordersDc">
             <actions>
                 <action id="create" type="create"/>
