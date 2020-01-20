@@ -1,17 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <fragment xmlns="http://schemas.haulmont.com/cuba/screen/fragment.xsd">
     <data>
-        <instance id="orderWithCustomerDbViewDc"
-                  class="com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView"
-                  view="_local">
+        <collection id="ordersDc"
+                    class="com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView"
+                    view="_local">
             <loader/>
-        </instance>
+        </collection>
+        <collection id="customersDc"
+                    class="com.company.checkcompositionoffragments.entity.Customer"
+                    view="_minimal">
+            <loader/>
+        </collection>
     </data>
-    <layout expand="orderTable">
-        <groupBox id="customFilter">
-
+    <layout expand="orderTableBox">
+        <groupBox id="customFilterBox">
+            <hbox id="customerFilterBox" spacing="true" height="AUTO" width="AUTO">
+                <label id="customerFilterLabel"
+                       align="MIDDLE_CENTER"
+                       value="msg://filter.customer.caption"/>
+                <lookupField id="customerFilterField"
+                             dataContainer="customersDc"/>
+            </hbox>
+            <button id="Search" caption="msg://searchBtn.caption" invoke="onSearch"/>
         </groupBox>
-        <groupBox id="orderTable"/>
+        <groupBox id="orderTableBox"/>
     </layout>
 </fragment>
 

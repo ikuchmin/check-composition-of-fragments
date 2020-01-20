@@ -1,38 +1,3 @@
--- begin CHECKCOMPOSITIONOFFRAGMENTS_CUSTOMER
-create table CHECKCOMPOSITIONOFFRAGMENTS_CUSTOMER (
-    ID uuid,
-    VERSION integer not null,
-    CREATE_TS timestamp,
-    CREATED_BY varchar(50),
-    CREATED_BY varchar(50),
-    UPDATE_TS timestamp,
-    UPDATED_BY varchar(50),
-    DELETE_TS timestamp,
-    DELETED_BY varchar(50),
-    --
-    FIRST_NAME varchar(255),
-    LAST_NAME varchar(255),
-    --
-    primary key (ID)
-)^
--- end CHECKCOMPOSITIONOFFRAGMENTS_CUSTOMER
--- begin CHECKCOMPOSITIONOFFRAGMENTS_ORDER
-create table CHECKCOMPOSITIONOFFRAGMENTS_ORDER (
-    ID uuid,
-    VERSION integer not null,
-    CREATE_TS timestamp,
-    CREATED_BY varchar(50),
-    UPDATE_TS timestamp,
-    UPDATED_BY varchar(50),
-    DELETE_TS timestamp,
-    DELETED_BY varchar(50),
-    --
-    NUMBER_ varchar(255),
-    CUSTOMER_ID uuid,
-    --
-    primary key (ID)
-)^
--- end CHECKCOMPOSITIONOFFRAGMENTS_ORDER
 -- begin CHECKCOMPOSITIONOFFRAGMENTS_ORDER_ITEM
 create table CHECKCOMPOSITIONOFFRAGMENTS_ORDER_ITEM (
     ID uuid,
@@ -66,6 +31,40 @@ create table CHECKCOMPOSITIONOFFRAGMENTS_PRODUCT (
     primary key (ID)
 )^
 -- end CHECKCOMPOSITIONOFFRAGMENTS_PRODUCT
+-- begin CHECKCOMPOSITIONOFFRAGMENTS_CUSTOMER
+create table CHECKCOMPOSITIONOFFRAGMENTS_CUSTOMER (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    FIRST_NAME varchar(255),
+    LAST_NAME varchar(255),
+    --
+    primary key (ID)
+)^
+-- end CHECKCOMPOSITIONOFFRAGMENTS_CUSTOMER
+-- begin CHECKCOMPOSITIONOFFRAGMENTS_ORDER
+create table CHECKCOMPOSITIONOFFRAGMENTS_ORDER (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    NUMBER_ varchar(255),
+    CUSTOMER_ID uuid,
+    --
+    primary key (ID)
+)^
+-- end CHECKCOMPOSITIONOFFRAGMENTS_ORDER
 -- begin CUBADBVIEWS_ORDER_WITH_PRODUCTS
 create or replace view CHECKCOMPOSITIONOFFRAGMENTS_ORDER_WITH_CUSTOMER_VIEW as
 select o.*,

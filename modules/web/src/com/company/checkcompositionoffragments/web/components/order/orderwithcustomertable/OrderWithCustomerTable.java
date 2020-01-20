@@ -19,10 +19,20 @@ import com.haulmont.cuba.gui.screen.UiController;
 import com.haulmont.cuba.gui.screen.UiDescriptor;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EventObject;
+import java.util.List;
+
+import static com.company.checkcompositionoffragments.web.components.order.orderwithcustomertable.OrderWithCustomerTable.ChangeListObjectsEvent.ChangeListEventType.CREATE;
+import static java.util.Arrays.asList;
 
 @UiController("checkcompositionoffragments_OrderWithCustomerTable")
 @UiDescriptor("order-with-customer-table.xml")
 public class OrderWithCustomerTable extends ScreenFragment {
+
+    @Inject
+    protected Metadata metadata;
 
     @Inject
     protected ScreenBuilders screenBuilders;
@@ -32,20 +42,19 @@ public class OrderWithCustomerTable extends ScreenFragment {
 
     protected CollectionContainer<OrderWithCustomerDbView> dc;
 
-    protected CollectionLoader<OrderWithCustomerDbView> dl;
-
     @Subscribe
     protected void onInit(InitEvent event) {
         ordersTable.setItems(new ContainerGroupTableItems<>(dc));
-        //getScreenData().registerContainer("ordersDc", dc);
     }
 
     @Subscribe("ordersTable.create")
     protected void onOrdersTableCreate(Action.ActionPerformedEvent event) {
+        Order newOrder = metadata.create(Order.class);
+
         screenBuilders.editor(Order.class, this)
                 .withScreenClass(OrderEdit.class)
-                .withAfterCloseListener(e -> dl.load())
-                .newEntity()
+                .withAfterCloseListener(e -> new ChangeListObjectsEvent(this, CREATE, asList(newOrder)))
+                .newEntity(newOrder)
                 .show();
     }
 
@@ -57,11 +66,29 @@ public class OrderWithCustomerTable extends ScreenFragment {
         this.dc = dc;
     }
 
-    public CollectionLoader<OrderWithCustomerDbView> getDl() {
-        return dl;
-    }
+    public static class ChangeListObjectsEvent extends EventObject {
 
-    public void setDl(CollectionLoader<OrderWithCustomerDbView> dl) {
-        this.dl = dl;
+        enum ChangeListEventType {
+            CREATE, MODIFY, REMOVE
+        }
+
+        protected ChangeListEventType eventType;
+
+        protected List<Order> affectedItems;
+
+        public ChangeListObjectsEvent(Object source, ChangeListEventType eventType,
+                                      List<Order> affectedItems) {
+            super(source);
+            this.eventType = eventType;
+            this.affectedItems = affectedItems;
+        }
+
+        public ChangeListEventType getEventType() {
+            return eventType;
+        }
+
+        public List<Order> getAffectedItems() {
+            return affectedItems;
+        }
     }
 }

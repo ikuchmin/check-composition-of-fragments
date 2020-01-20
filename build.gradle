@@ -51,6 +51,7 @@ configure([globalModule, coreModule, webModule]) {
     apply(plugin: 'cuba')
 
     dependencies {
+        compile group:'io.vavr', name:'vavr', version:'0.10.2'
         testCompile('junit:junit:4.12')
     }
 
