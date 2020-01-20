@@ -1,6 +1,6 @@
 package com.company.checkcompositionoffragments.core;
 
-import com.company.checkcompositionoffragments.CheckcompositionoffragmentsTestContainer;
+import com.company.checkcompositionoffragments.CheckCompositionOfFragmentsTestContainer;
 import com.haulmont.cuba.core.EntityManager;
 import com.haulmont.cuba.core.Persistence;
 import com.haulmont.cuba.core.Transaction;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 public class SampleIntegrationTest {
 
     @ClassRule
-    public static CheckcompositionoffragmentsTestContainer cont = CheckcompositionoffragmentsTestContainer.Common.INSTANCE;
+    public static CheckCompositionOfFragmentsTestContainer cont = CheckCompositionOfFragmentsTestContainer.Common.INSTANCE;
 
     private Metadata metadata;
     private Persistence persistence;

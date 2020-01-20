@@ -9,9 +9,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class CheckcompositionoffragmentsTestContainer extends TestContainer {
+public class CheckCompositionOfFragmentsTestContainer extends TestContainer {
 
-    public CheckcompositionoffragmentsTestContainer() {
+    public CheckCompositionOfFragmentsTestContainer() {
         super();
         appComponents = new ArrayList<>(Arrays.asList(
                 "com.haulmont.cuba"
@@ -51,9 +51,9 @@ public class CheckcompositionoffragmentsTestContainer extends TestContainer {
         dbPassword = resourceElem.attributeValue("password");
     }
 
-    public static class Common extends CheckcompositionoffragmentsTestContainer {
+    public static class Common extends CheckCompositionOfFragmentsTestContainer {
 
-        public static final CheckcompositionoffragmentsTestContainer.Common INSTANCE = new CheckcompositionoffragmentsTestContainer.Common();
+        public static final CheckCompositionOfFragmentsTestContainer.Common INSTANCE = new CheckCompositionOfFragmentsTestContainer.Common();
 
         private static volatile boolean initialized;
 

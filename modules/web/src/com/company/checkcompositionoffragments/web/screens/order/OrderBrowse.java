@@ -1,7 +1,10 @@
 package com.company.checkcompositionoffragments.web.screens.order;
 
+import com.company.checkcompositionoffragments.core.paging.Pageable;
 import com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView;
 import com.company.checkcompositionoffragments.repository.OrderRepositoryService;
+import com.company.checkcompositionoffragments.repository.OrderWithCustomerRepositoryService;
+import com.company.checkcompositionoffragments.repository.OrderWithCustomerRepositoryService.OrderWithCustomerFilter;
 import com.company.checkcompositionoffragments.web.components.order.orderwithcustomertable.OrderWithCustomerTable;
 import com.haulmont.cuba.core.global.LoadContext;
 import com.haulmont.cuba.core.global.Sort;
@@ -27,7 +30,7 @@ public class OrderBrowse extends StandardLookup<Order> {
     protected Fragments fragments;
 
     @Inject
-    protected OrderRepositoryService orderRepository;
+    protected OrderWithCustomerRepositoryService orderWithCustomerRepository;
 
     @Inject
     protected CollectionContainer<OrderWithCustomerDbView> ordersBrowseDc;
@@ -53,7 +56,8 @@ public class OrderBrowse extends StandardLookup<Order> {
     protected List<OrderWithCustomerDbView> ordersDlLoadDelegate(
             LoadContext<OrderWithCustomerDbView> loadContext) {
 
-        return orderRepository.findAllOrderWithCustomers();
+        return orderWithCustomerRepository.findAllOrderWithCustomers(
+                new OrderWithCustomerFilter(), Sort.UNSORTED, Pageable.unpaged());
     }
 
 
