@@ -2,10 +2,13 @@ package com.company.checkcompositionoffragments.core.filter;
 
 import com.haulmont.cuba.core.entity.Entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Filter<E extends Entity> {
+public class Filter<E extends Entity> implements Serializable {
+
+    private static final long serialVersionUID = 5831398263768982529L;
 
     private List<FilterSpecification<E>> specifications = new ArrayList<>();
 

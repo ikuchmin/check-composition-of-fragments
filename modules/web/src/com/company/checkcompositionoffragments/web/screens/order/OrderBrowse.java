@@ -1,10 +1,10 @@
 package com.company.checkcompositionoffragments.web.screens.order;
 
+import com.company.checkcompositionoffragments.core.filter.Filter;
 import com.company.checkcompositionoffragments.core.paging.Pageable;
 import com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView;
-import com.company.checkcompositionoffragments.repository.OrderRepositoryService;
 import com.company.checkcompositionoffragments.repository.OrderWithCustomerRepositoryService;
-import com.company.checkcompositionoffragments.repository.OrderWithCustomerRepositoryService.OrderWithCustomerFilter;
+import com.company.checkcompositionoffragments.web.components.order.orderwithcustomerfilteredtable.OrderWithCustomerFilter;
 import com.company.checkcompositionoffragments.web.components.order.orderwithcustomertable.OrderWithCustomerTable;
 import com.haulmont.cuba.core.global.LoadContext;
 import com.haulmont.cuba.core.global.Sort;
@@ -17,7 +17,6 @@ import com.haulmont.cuba.gui.screen.*;
 import com.company.checkcompositionoffragments.entity.Order;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 @UiController("checkcompositionoffragments_Order.browse")
@@ -36,13 +35,25 @@ public class OrderBrowse extends StandardLookup<Order> {
     protected CollectionContainer<OrderWithCustomerDbView> ordersBrowseDc;
 
     @Inject
-    protected GroupBoxLayout orderTableBox;
+    protected CollectionLoader<OrderWithCustomerDbView> ordersDl;
 
     @Inject
-    protected CollectionLoader<OrderWithCustomerDbView> ordersDl;
+    protected OrderWithCustomerFilter filterFragment;
+
+    @Inject
+    protected GroupBoxLayout orderTableBox;
+
+    protected Filter<OrderWithCustomerDbView> currentFilter;
 
     @Subscribe
     protected void onInit(InitEvent event) {
+        filterFragment.addApplyFilterEventListener(e -> {
+        // hack
+        this.currentFilter = e.getFilter();
+
+        ordersDl.load();
+        });
+
         OrderWithCustomerTable orderWithCustomerTable =
                 fragments.create(this, OrderWithCustomerTable.class);
 
@@ -58,8 +69,13 @@ public class OrderBrowse extends StandardLookup<Order> {
     protected List<OrderWithCustomerDbView> ordersDlLoadDelegate(
             LoadContext<OrderWithCustomerDbView> loadContext) {
 
-        return orderWithCustomerRepository.findAllOrderWithCustomers(
-                new OrderWithCustomerFilter(), Sort.UNSORTED, Pageable.unpaged());
+        Filter<OrderWithCustomerDbView> filter =
+                this.currentFilter != null ? currentFilter : new OrderWithCustomerRepositoryService.OrderWithCustomerFilter();
+
+        List<OrderWithCustomerDbView> orders = orderWithCustomerRepository.findAllOrderWithCustomers(
+                filter, Sort.UNSORTED, Pageable.unpaged());
+
+        return orders.subList(0, 20);
     }
 
 

@@ -7,5 +7,5 @@ import com.company.checkcompositionoffragments.entity.Customer;
 @UiDescriptor("customer-edit.xml")
 @EditedEntityContainer("customerDc")
 @LoadDataBeforeShow
-public class CustomerEdit extends StandardEditor<Customer> {
+public class  CustomerEdit extends StandardEditor<Customer> {
 }

@@ -7,6 +7,8 @@ import com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView;
 import com.company.checkcompositionoffragments.exception.UnsupportedFilterException;
 import com.haulmont.cuba.core.TransactionalDataManager;
 import com.haulmont.cuba.core.global.Sort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -21,6 +23,8 @@ import static java.util.stream.Collectors.toList;
 
 @Service(OrderWithCustomerRepositoryService.NAME)
 public class OrderWithCustomerRepositoryServiceBean implements OrderWithCustomerRepositoryService {
+
+    private Logger log = LoggerFactory.getLogger(OrderWithCustomerRepositoryServiceBean.class);
 
     @Inject
     protected TransactionalDataManager txDm;
@@ -46,6 +50,7 @@ public class OrderWithCustomerRepositoryServiceBean implements OrderWithCustomer
                             f -> applyByCustomerNameContainsFilter(finalQueryWithFilters, f)));
         }
 
+        log.debug("Query with filters: {}", queryWithFilters);
 
         // apply sort
         String queryWithSort = queryWithFilters;
@@ -81,11 +86,25 @@ public class OrderWithCustomerRepositoryServiceBean implements OrderWithCustomer
     }
 
     @SuppressWarnings("rawtypes")
-    protected List<Class> findAllOrderWithCustomersSupportedFilters() {
+    private List<Class> findAllOrderWithCustomersSupportedFilters() {
         return Arrays.asList(ByCustomerNameContains.class);
     }
 
     private String applyByCustomerNameContainsFilter(String query, ByCustomerNameContains filter) {
-        return query;
+
+        String newQuery = query;
+        if (hasNoWhereClause(newQuery)) {
+            newQuery = newQuery + " where ";
+        }
+
+        // add filter
+        // todo before using parameter it should be escaped to eliminate sql injection
+        newQuery = newQuery + "o.customer like '%" + filter.customerNameFragment + "%'";
+
+        return newQuery;
+    }
+
+    private boolean hasNoWhereClause(String newQuery) {
+        return ! newQuery.toLowerCase().contains("where");
     }
 }

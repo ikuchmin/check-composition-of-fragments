@@ -7,7 +7,7 @@
         <collection id="ordersBrowseDc"
                     class="com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView"
                     view="_local">
-            <loader id="ordersDl">
+            <loader id="ordersDl" maxResults="20">
                 <query>
                     <![CDATA[select e from checkcompositionoffragments_OrderWithCustomerDbView e]]>
                 </query>
@@ -22,6 +22,8 @@
                 dataLoader="ordersDl">
             <properties include=".*"/>
         </filter>
+        <fragment id="filterFragment"
+                  screen="checkcompositionoffragments_OrderWithCustomerFilter"/>
         <groupBox id="orderTableBox"/>
         <hbox id="lookupActions" spacing="true" visible="false">
             <button action="lookupSelectAction"/>

@@ -7,7 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-@NamePattern("%s|firstName")
+@NamePattern("%s %s|firstName,lastName")
 @Table(name = "CHECKCOMPOSITIONOFFRAGMENTS_CUSTOMER")
 @Entity(name = "checkcompositionoffragments_Customer")
 public class Customer extends StandardEntity {

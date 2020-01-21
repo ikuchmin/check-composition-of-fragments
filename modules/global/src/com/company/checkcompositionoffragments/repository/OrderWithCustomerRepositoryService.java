@@ -18,27 +18,27 @@ public interface OrderWithCustomerRepositoryService {
 
     class OrderWithCustomerFilter extends Filter<OrderWithCustomerDbView> implements Serializable {
 
-        static ByCustomerNameContains customerNameContains(String customerNameFragment) {
+        public static ByCustomerNameContains customerNameContains(String customerNameFragment) {
             return new ByCustomerNameContains(customerNameFragment);
         }
 
-        static ByOrderNumberLessEqualsMore orderNumberLessEqualsMore(String orderNumber,
+        public static ByOrderNumberLessEqualsMore orderNumberLessEqualsMore(String orderNumber,
                                                                        MathFilterOperation operation) {
 
             return new ByOrderNumberLessEqualsMore(orderNumber, operation);
         }
 
-        static ByOrderNumberLessEqualsMore orderNumberLess(String orderNumber) {
+        public static ByOrderNumberLessEqualsMore orderNumberLess(String orderNumber) {
 
             return new ByOrderNumberLessEqualsMore(orderNumber, MathFilterOperation.LESS);
         }
 
-        static ByOrderNumberLessEqualsMore orderNumberEqual(String orderNumber) {
+        public static ByOrderNumberLessEqualsMore orderNumberEqual(String orderNumber) {
 
             return new ByOrderNumberLessEqualsMore(orderNumber, MathFilterOperation.EQUAL);
         }
 
-        static ByOrderNumberLessEqualsMore orderNumberMore(String orderNumber) {
+        public static ByOrderNumberLessEqualsMore orderNumberMore(String orderNumber) {
 
             return new ByOrderNumberLessEqualsMore(orderNumber, MathFilterOperation.MORE);
         }
