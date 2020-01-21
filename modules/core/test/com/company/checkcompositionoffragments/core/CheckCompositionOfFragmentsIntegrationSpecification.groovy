@@ -2,6 +2,7 @@ package com.company.checkcompositionoffragments.core
 
 import com.company.checkcompositionoffragments.CheckCompositionOfFragmentsTestContainer
 import com.company.checkcompositionoffragments.builder.PersistenceObjectGraphBuilder
+import com.haulmont.cuba.core.global.AppBeans
 import com.haulmont.cuba.core.global.DataManager
 import com.haulmont.cuba.core.global.Metadata
 import org.junit.ClassRule
@@ -19,6 +20,9 @@ class CheckCompositionOfFragmentsIntegrationSpecification extends Specification 
     DataManager dataManager
 
     void setup() {
+        metadata = AppBeans.get(Metadata)
+        dataManager = AppBeans.get(DataManager)
+
         builder = PersistenceObjectGraphBuilder.newInstance(metadata, dataManager)
         builder.classLoader = this.class.classLoader
         builder.classNameResolver = ["com.company.checkcompositionoffragments.entity",

@@ -45,7 +45,9 @@ public class OrderBrowse extends StandardLookup<Order> {
     protected void onInit(InitEvent event) {
         OrderWithCustomerTable orderWithCustomerTable =
                 fragments.create(this, OrderWithCustomerTable.class);
+
         orderWithCustomerTable.setDc(ordersBrowseDc);
+        orderWithCustomerTable.addChangeListEntitiesEventListener(e -> ordersDl.load());
 
         Fragment orderTableFragment = orderWithCustomerTable.getFragment();
         orderTableBox.add(orderTableFragment);

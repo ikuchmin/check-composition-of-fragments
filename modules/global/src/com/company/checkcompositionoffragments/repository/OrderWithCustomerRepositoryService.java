@@ -16,7 +16,7 @@ public interface OrderWithCustomerRepositoryService {
     List<OrderWithCustomerDbView> findAllOrderWithCustomers(Filter<OrderWithCustomerDbView> filter,
                                                             Sort sort, Pageable pageable);
 
-    class OrderWithCustomerFilter extends Filter<OrderWithCustomerDbView> {
+    class OrderWithCustomerFilter extends Filter<OrderWithCustomerDbView> implements Serializable {
 
         static ByCustomerNameContains customerNameContains(String customerNameFragment) {
             return new ByCustomerNameContains(customerNameFragment);

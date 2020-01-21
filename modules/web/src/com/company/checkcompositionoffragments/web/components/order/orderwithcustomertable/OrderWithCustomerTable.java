@@ -3,28 +3,24 @@ package com.company.checkcompositionoffragments.web.components.order.orderwithcu
 import com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView;
 import com.company.checkcompositionoffragments.entity.Order;
 import com.company.checkcompositionoffragments.web.screens.order.OrderEdit;
+import com.haulmont.bali.events.Subscription;
 import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.gui.ScreenBuilders;
-import com.haulmont.cuba.gui.Screens;
 import com.haulmont.cuba.gui.components.Action;
 import com.haulmont.cuba.gui.components.GroupTable;
 import com.haulmont.cuba.gui.components.data.table.ContainerGroupTableItems;
-import com.haulmont.cuba.gui.components.data.table.ContainerTableItems;
 import com.haulmont.cuba.gui.model.CollectionContainer;
-import com.haulmont.cuba.gui.model.CollectionLoader;
-import com.haulmont.cuba.gui.model.HasLoader;
 import com.haulmont.cuba.gui.screen.ScreenFragment;
 import com.haulmont.cuba.gui.screen.Subscribe;
 import com.haulmont.cuba.gui.screen.UiController;
 import com.haulmont.cuba.gui.screen.UiDescriptor;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EventObject;
 import java.util.List;
+import java.util.function.Consumer;
 
-import static com.company.checkcompositionoffragments.web.components.order.orderwithcustomertable.OrderWithCustomerTable.ChangeListObjectsEvent.ChangeListEventType.CREATE;
+import static com.company.checkcompositionoffragments.web.components.order.orderwithcustomertable.OrderWithCustomerTable.ChangeListEntitiesEvent.ChangeEventType.CREATE;
 import static java.util.Arrays.asList;
 
 @UiController("checkcompositionoffragments_OrderWithCustomerTable")
@@ -53,9 +49,14 @@ public class OrderWithCustomerTable extends ScreenFragment {
 
         screenBuilders.editor(Order.class, this)
                 .withScreenClass(OrderEdit.class)
-                .withAfterCloseListener(e -> new ChangeListObjectsEvent(this, CREATE, asList(newOrder)))
+                .withAfterCloseListener(e -> fireEvent(ChangeListEntitiesEvent.class,
+                        new ChangeListEntitiesEvent(this, CREATE, asList(newOrder))))
                 .newEntity(newOrder)
                 .show();
+    }
+
+    public Subscription addChangeListEntitiesEventListener(Consumer<ChangeListEntitiesEvent> listener) {
+        return getEventHub().subscribe(ChangeListEntitiesEvent.class, listener);
     }
 
     public CollectionContainer<OrderWithCustomerDbView> getDc() {
@@ -66,24 +67,25 @@ public class OrderWithCustomerTable extends ScreenFragment {
         this.dc = dc;
     }
 
-    public static class ChangeListObjectsEvent extends EventObject {
+    public static class ChangeListEntitiesEvent extends EventObject {
 
-        enum ChangeListEventType {
+        enum ChangeEventType {
             CREATE, MODIFY, REMOVE
         }
 
-        protected ChangeListEventType eventType;
+        protected ChangeEventType eventType;
 
         protected List<Order> affectedItems;
 
-        public ChangeListObjectsEvent(Object source, ChangeListEventType eventType,
-                                      List<Order> affectedItems) {
+        public ChangeListEntitiesEvent(Object source, ChangeEventType eventType,
+                                       List<Order> affectedItems) {
             super(source);
+
             this.eventType = eventType;
             this.affectedItems = affectedItems;
         }
 
-        public ChangeListEventType getEventType() {
+        public ChangeEventType getEventType() {
             return eventType;
         }
 
