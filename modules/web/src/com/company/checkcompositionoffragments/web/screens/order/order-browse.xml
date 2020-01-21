@@ -7,11 +7,7 @@
         <collection id="ordersBrowseDc"
                     class="com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView"
                     view="_local">
-            <loader id="ordersDl" maxResults="20">
-                <query>
-                    <![CDATA[select e from checkcompositionoffragments_OrderWithCustomerDbView e]]>
-                </query>
-            </loader>
+            <loader id="ordersDl" maxResults="20"/>
         </collection>
     </data>
     <dialogMode height="600"

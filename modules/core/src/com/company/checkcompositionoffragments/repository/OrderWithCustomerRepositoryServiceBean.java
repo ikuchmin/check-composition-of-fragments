@@ -6,6 +6,9 @@ import com.company.checkcompositionoffragments.core.paging.Pageable;
 import com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView;
 import com.company.checkcompositionoffragments.exception.UnsupportedFilterException;
 import com.haulmont.cuba.core.TransactionalDataManager;
+import com.haulmont.cuba.core.global.FluentLoader;
+import com.haulmont.cuba.core.global.FluentLoader.ByQuery;
+import com.haulmont.cuba.core.global.LoadContext;
 import com.haulmont.cuba.core.global.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +17,8 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -54,22 +59,39 @@ public class OrderWithCustomerRepositoryServiceBean implements OrderWithCustomer
 
         // apply sort
         String queryWithSort = queryWithFilters;
-        for (Sort.Order order : sort.getOrders()) {
-            queryWithSort = applySort(queryWithSort, order);
+        if (hasSort(sort)) {
+            queryWithSort = applySort(queryWithSort, sort);
         }
 
+        ByQuery<OrderWithCustomerDbView, UUID> dmQuery =
+                txDm.load(OrderWithCustomerDbView.class).query(queryWithSort);
+
         // apply pagination
-        String queryWithPagination = queryWithSort;
+        ByQuery<OrderWithCustomerDbView, UUID> dmQueryWithPagination = dmQuery;
+        if (pageable != Pageable.unpaged()) {
+            dmQueryWithPagination = dmQueryWithPagination
+                    .firstResult((int) pageable.getOffset())
+                    .maxResults(pageable.getPageSize());
+        }
 
-        return txDm.load(OrderWithCustomerDbView.class).query(queryWithPagination).list();
+        return dmQueryWithPagination.list();
     }
 
-    protected String applySort(String queryWithSort, Sort.Order order) {
-        return null;
+    private boolean hasSort(Sort sort) {
+        return ! sort.getOrders().isEmpty();
     }
 
-    private String constructWhereClause(String query, FilterSpecification<OrderWithCustomerDbView> orderWithCustomerDbViewFilter) {
-        return null;
+    protected String applySort(String query, Sort sort) {
+
+        String orderLine = sort.getOrders().stream()
+                .map(o -> "o." + o.getProperty() + " " + o.getDirection())
+                .collect(Collectors.joining(", "));
+
+        return query + " order by " + orderLine;
+    }
+
+    private boolean hasNoOrderClause(String query) {
+        return query.toLowerCase().contains("order by");
     }
 
     private void checkFilterIsSupported(Filter<OrderWithCustomerDbView> filter,

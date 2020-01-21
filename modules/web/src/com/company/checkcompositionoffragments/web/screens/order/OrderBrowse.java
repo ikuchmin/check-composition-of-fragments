@@ -1,6 +1,7 @@
 package com.company.checkcompositionoffragments.web.screens.order;
 
 import com.company.checkcompositionoffragments.core.filter.Filter;
+import com.company.checkcompositionoffragments.core.paging.PageRequest;
 import com.company.checkcompositionoffragments.core.paging.Pageable;
 import com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView;
 import com.company.checkcompositionoffragments.repository.OrderWithCustomerRepositoryService;
@@ -69,13 +70,15 @@ public class OrderBrowse extends StandardLookup<Order> {
     protected List<OrderWithCustomerDbView> ordersDlLoadDelegate(
             LoadContext<OrderWithCustomerDbView> loadContext) {
 
+        LoadContext.Query query = loadContext.getQuery();
+
         Filter<OrderWithCustomerDbView> filter =
                 this.currentFilter != null ? currentFilter : new OrderWithCustomerRepositoryService.OrderWithCustomerFilter();
 
-        List<OrderWithCustomerDbView> orders = orderWithCustomerRepository.findAllOrderWithCustomers(
-                filter, Sort.UNSORTED, Pageable.unpaged());
+        Sort sort = query.getSort() != null ? query.getSort() : Sort.UNSORTED;
 
-        return orders.subList(0, 20);
+        return orderWithCustomerRepository.findAllOrderWithCustomers(filter, sort,
+                PageRequest.of(query.getFirstResult() / query.getMaxResults(), query.getMaxResults()));
     }
 
 
