@@ -1,6 +1,6 @@
 package com.company.checkcompositionoffragments.exception;
 
-import com.company.checkcompositionoffragments.core.filter.FilterSpecification;
+import com.company.checkcompositionoffragments.filter.FilterSpecification;
 
 import java.util.List;
 

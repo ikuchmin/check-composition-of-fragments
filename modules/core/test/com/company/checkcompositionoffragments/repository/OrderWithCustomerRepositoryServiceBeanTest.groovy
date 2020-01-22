@@ -1,15 +1,15 @@
 package com.company.checkcompositionoffragments.repository
 
 import com.company.checkcompositionoffragments.core.CheckCompositionOfFragmentsIntegrationSpecification
-import com.company.checkcompositionoffragments.core.filter.Filter
 import com.company.checkcompositionoffragments.core.paging.PageRequest
 import com.company.checkcompositionoffragments.core.paging.Pageable
 import com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView
+import com.company.checkcompositionoffragments.filter.Filter
 import com.haulmont.cuba.core.global.AppBeans
 import com.haulmont.cuba.core.global.Sort
 import com.haulmont.cuba.core.global.UuidProvider
 
-import static com.company.checkcompositionoffragments.repository.OrderWithCustomerRepositoryService.OrderWithCustomerFilter.customerNameContains
+import static com.company.checkcompositionoffragments.filter.orderwithcustomer.OrderWithCustomerFilters.customerNameContains
 
 class OrderWithCustomerRepositoryServiceBeanTest extends CheckCompositionOfFragmentsIntegrationSpecification {
 
@@ -68,8 +68,8 @@ class OrderWithCustomerRepositoryServiceBeanTest extends CheckCompositionOfFragm
 
         when:
         List<OrderWithCustomerDbView> fetched = delegate
-                .findAllOrderWithCustomers(new Filter<OrderWithCustomerDbView>()
-                        .by(customerNameContains("Test")), Sort.UNSORTED, Pageable.unpaged())
+                .findAllOrderWithCustomers(Filter.by(customerNameContains("Test")),
+                        Sort.UNSORTED, Pageable.unpaged())
 
         then:
         order1.id in fetched.collect { it.id }
@@ -106,8 +106,8 @@ class OrderWithCustomerRepositoryServiceBeanTest extends CheckCompositionOfFragm
 
         when:
         List<OrderWithCustomerDbView> fetched = delegate
-                .findAllOrderWithCustomers(new Filter<OrderWithCustomerDbView>()
-                        .by(customerNameContains(predefinedCustomerName)), Sort.by(Sort.Direction.DESC, "createTs"), Pageable.unpaged())
+                .findAllOrderWithCustomers(Filter.by(customerNameContains(predefinedCustomerName)),
+                        Sort.by(Sort.Direction.DESC, "createTs"), Pageable.unpaged())
 
         then:
         [order3.id, order2.id, order1.id] == fetched.collect { it.id }
@@ -145,8 +145,8 @@ class OrderWithCustomerRepositoryServiceBeanTest extends CheckCompositionOfFragm
 
         when:
         List<OrderWithCustomerDbView> fetched = delegate
-                .findAllOrderWithCustomers(new Filter<OrderWithCustomerDbView>()
-                        .by(customerNameContains(predefinedCustomerName)), Sort.UNSORTED, PageRequest.of(0, 1))
+                .findAllOrderWithCustomers(Filter.by(customerNameContains(predefinedCustomerName)),
+                        Sort.UNSORTED, PageRequest.of(0, 1))
 
         then:
         order1.id in fetched.collect { it.id }
@@ -155,8 +155,8 @@ class OrderWithCustomerRepositoryServiceBeanTest extends CheckCompositionOfFragm
 
         when:
         fetched = delegate
-                .findAllOrderWithCustomers(new Filter<OrderWithCustomerDbView>()
-                        .by(customerNameContains(predefinedCustomerName)), Sort.UNSORTED, PageRequest.of(1, 1))
+                .findAllOrderWithCustomers(Filter.by(customerNameContains(predefinedCustomerName)),
+                        Sort.UNSORTED, PageRequest.of(1, 1))
 
         then:
         ! (order1.id in fetched.collect { it.id })
@@ -165,8 +165,8 @@ class OrderWithCustomerRepositoryServiceBeanTest extends CheckCompositionOfFragm
 
         when:
         fetched = delegate
-                .findAllOrderWithCustomers(new Filter<OrderWithCustomerDbView>()
-                        .by(customerNameContains(predefinedCustomerName)), Sort.UNSORTED, PageRequest.of(2, 1))
+                .findAllOrderWithCustomers(Filter.by(customerNameContains(predefinedCustomerName)),
+                        Sort.UNSORTED, PageRequest.of(2, 1))
 
         then:
         ! (order1.id in fetched.collect { it.id })

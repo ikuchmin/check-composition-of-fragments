@@ -1,4 +1,4 @@
-package com.company.checkcompositionoffragments.core.filter;
+package com.company.checkcompositionoffragments.filter;
 
 import java.io.Serializable;
 

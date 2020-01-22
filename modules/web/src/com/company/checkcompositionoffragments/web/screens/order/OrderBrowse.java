@@ -1,9 +1,9 @@
 package com.company.checkcompositionoffragments.web.screens.order;
 
-import com.company.checkcompositionoffragments.core.filter.Filter;
 import com.company.checkcompositionoffragments.core.paging.PageRequest;
-import com.company.checkcompositionoffragments.core.paging.Pageable;
 import com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView;
+import com.company.checkcompositionoffragments.entity.Order;
+import com.company.checkcompositionoffragments.filter.Filter;
 import com.company.checkcompositionoffragments.repository.OrderWithCustomerRepositoryService;
 import com.company.checkcompositionoffragments.web.components.order.orderwithcustomerfilteredtable.OrderWithCustomerFilter;
 import com.company.checkcompositionoffragments.web.components.order.orderwithcustomertable.OrderWithCustomerTable;
@@ -14,8 +14,14 @@ import com.haulmont.cuba.gui.components.Fragment;
 import com.haulmont.cuba.gui.components.GroupBoxLayout;
 import com.haulmont.cuba.gui.model.CollectionContainer;
 import com.haulmont.cuba.gui.model.CollectionLoader;
-import com.haulmont.cuba.gui.screen.*;
-import com.company.checkcompositionoffragments.entity.Order;
+import com.haulmont.cuba.gui.screen.Install;
+import com.haulmont.cuba.gui.screen.LoadDataBeforeShow;
+import com.haulmont.cuba.gui.screen.LookupComponent;
+import com.haulmont.cuba.gui.screen.StandardLookup;
+import com.haulmont.cuba.gui.screen.Subscribe;
+import com.haulmont.cuba.gui.screen.Target;
+import com.haulmont.cuba.gui.screen.UiController;
+import com.haulmont.cuba.gui.screen.UiDescriptor;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -73,7 +79,7 @@ public class OrderBrowse extends StandardLookup<Order> {
         LoadContext.Query query = loadContext.getQuery();
 
         Filter<OrderWithCustomerDbView> filter =
-                this.currentFilter != null ? currentFilter : new OrderWithCustomerRepositoryService.OrderWithCustomerFilter();
+                this.currentFilter != null ? currentFilter : Filter.nofilter();
 
         Sort sort = query.getSort() != null ? query.getSort() : Sort.UNSORTED;
 

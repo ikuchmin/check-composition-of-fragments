@@ -1,14 +1,13 @@
 package com.company.checkcompositionoffragments.repository;
 
-import com.company.checkcompositionoffragments.core.filter.Filter;
-import com.company.checkcompositionoffragments.core.filter.FilterSpecification;
 import com.company.checkcompositionoffragments.core.paging.Pageable;
 import com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView;
 import com.company.checkcompositionoffragments.exception.UnsupportedFilterException;
+import com.company.checkcompositionoffragments.filter.Filter;
+import com.company.checkcompositionoffragments.filter.FilterSpecification;
+import com.company.checkcompositionoffragments.filter.orderwithcustomer.ByCustomerNameContains;
 import com.haulmont.cuba.core.TransactionalDataManager;
-import com.haulmont.cuba.core.global.FluentLoader;
 import com.haulmont.cuba.core.global.FluentLoader.ByQuery;
-import com.haulmont.cuba.core.global.LoadContext;
 import com.haulmont.cuba.core.global.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,7 +120,7 @@ public class OrderWithCustomerRepositoryServiceBean implements OrderWithCustomer
 
         // add filter
         // todo before using parameter it should be escaped to eliminate sql injection
-        newQuery = newQuery + "o.customer like '%" + filter.customerNameFragment + "%'";
+        newQuery = newQuery + "o.customer like '%" + filter.getCustomerNameFragment() + "%'";
 
         return newQuery;
     }
