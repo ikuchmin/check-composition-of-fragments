@@ -2,13 +2,17 @@ package com.company.checkcompositionoffragments.repository;
 
 import com.company.checkcompositionoffragments.core.paging.Pageable;
 import com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView;
+import com.company.checkcompositionoffragments.dto.QOrderWithCustomerDbView;
+import com.company.checkcompositionoffragments.entity.QCustomer;
 import com.company.checkcompositionoffragments.exception.UnsupportedFilterException;
 import com.company.checkcompositionoffragments.filter.Filter;
 import com.company.checkcompositionoffragments.filter.FilterSpecification;
 import com.company.checkcompositionoffragments.filter.orderwithcustomer.ByCustomerNameContains;
+import com.company.checkcompositionoffragments.querydsl.jpa.cuba.CubaQueryFactory;
 import com.haulmont.cuba.core.TransactionalDataManager;
-import com.haulmont.cuba.core.global.FluentLoader.ByQuery;
 import com.haulmont.cuba.core.global.Sort;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,8 +20,6 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -40,53 +42,57 @@ public class OrderWithCustomerRepositoryServiceBean implements OrderWithCustomer
         checkFilterIsSupported(filter, findAllOrderWithCustomersSupportedFilters());
 
 
-        String baseQuery = "select o from checkcompositionoffragments_OrderWithCustomerDbView o";
+        JPAQueryFactory queryFactory = new CubaQueryFactory(txDm);
+        QCustomer customer = QCustomer.customer;
+
+        QOrderWithCustomerDbView orderWithCustomer = QOrderWithCustomerDbView.orderWithCustomerDbView;
+
+        var orderWithCustomerQuery = queryFactory.selectFrom(orderWithCustomer);
 
         // apply filters
-        String queryWithFilters = baseQuery;
         for (FilterSpecification<OrderWithCustomerDbView> spec : filter.getSpecifications()) {
 
             // effectively final trick
-            String finalQueryWithFilters = queryWithFilters;
-
-            queryWithFilters = Match(spec).of(
+            var finalOrderWithCustomerQuery = orderWithCustomerQuery;
+            orderWithCustomerQuery = Match(spec).of(
                     Case($(instanceOf(ByCustomerNameContains.class)),
-                            f -> applyByCustomerNameContainsFilter(finalQueryWithFilters, f)));
+                            f -> applyByCustomerNameContainsFilter(finalOrderWithCustomerQuery, f)));
         }
 
-        log.debug("Query with filters: {}", queryWithFilters);
+        log.debug("Query with filters: {}", orderWithCustomerQuery);
 
         // apply sort
-        String queryWithSort = queryWithFilters;
         if (hasSort(sort)) {
-            queryWithSort = applySort(queryWithSort, sort);
+            orderWithCustomerQuery = applySort(orderWithCustomerQuery, sort);
         }
 
-        ByQuery<OrderWithCustomerDbView, UUID> dmQuery =
-                txDm.load(OrderWithCustomerDbView.class).query(queryWithSort);
+        var orderWithCustomerDbViews = orderWithCustomerQuery.fetch();
 
         // apply pagination
-        ByQuery<OrderWithCustomerDbView, UUID> dmQueryWithPagination = dmQuery;
-        if (pageable != Pageable.unpaged()) {
-            dmQueryWithPagination = dmQueryWithPagination
-                    .firstResult((int) pageable.getOffset())
-                    .maxResults(pageable.getPageSize());
-        }
+//        ByQuery<OrderWithCustomerDbView, UUID> dmQueryWithPagination = dmQuery;
+//        if (pageable != Pageable.unpaged()) {
+//            dmQueryWithPagination = dmQueryWithPagination
+//                    .firstResult((int) pageable.getOffset())
+//                    .maxResults(pageable.getPageSize());
+//        }
 
-        return dmQueryWithPagination.list();
+        return orderWithCustomerDbViews;
     }
 
     private boolean hasSort(Sort sort) {
         return ! sort.getOrders().isEmpty();
     }
 
-    protected String applySort(String query, Sort sort) {
+    protected JPAQuery<OrderWithCustomerDbView> applySort(JPAQuery<OrderWithCustomerDbView> query, Sort sort) {
 
-        String orderLine = sort.getOrders().stream()
-                .map(o -> "o." + o.getProperty() + " " + o.getDirection())
-                .collect(Collectors.joining(", "));
+//        query.orderBy()
+//        String orderLine = sort.getOrders().stream()
+//                .map(o -> "o." + o.getProperty() + " " + o.getDirection())
+//                .collect(Collectors.joining(", "));
+//
+//        return query + " order by " + orderLine;
 
-        return query + " order by " + orderLine;
+        return query;
     }
 
     private boolean hasNoOrderClause(String query) {
@@ -111,18 +117,12 @@ public class OrderWithCustomerRepositoryServiceBean implements OrderWithCustomer
         return Arrays.asList(ByCustomerNameContains.class);
     }
 
-    private String applyByCustomerNameContainsFilter(String query, ByCustomerNameContains filter) {
+    private JPAQuery<OrderWithCustomerDbView> applyByCustomerNameContainsFilter(JPAQuery<OrderWithCustomerDbView> query,
+                                                                                ByCustomerNameContains filter) {
 
-        String newQuery = query;
-        if (hasNoWhereClause(newQuery)) {
-            newQuery = newQuery + " where ";
-        }
+        var orderWithCustomer = QOrderWithCustomerDbView.orderWithCustomerDbView;
 
-        // add filter
-        // todo before using parameter it should be escaped to eliminate sql injection
-        newQuery = newQuery + "o.customer like '%" + filter.getCustomerNameFragment() + "%'";
-
-        return newQuery;
+        return query.where(orderWithCustomer.customer.like(filter.getCustomerNameFragment()));
     }
 
     private boolean hasNoWhereClause(String newQuery) {

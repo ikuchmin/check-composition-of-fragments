@@ -1,7 +1,11 @@
 
 buildscript {
-    ext.cubaVersion = '7.2-SNAPSHOT'
+    ext {
+        cubaVersion = '7.2-SNAPSHOT'
+        querydslPluginVersion = '1.0.10'
+    }
     repositories {
+        mavenLocal()
         maven {
             url 'https://repo.cuba-platform.com/content/groups/work'
 
@@ -15,6 +19,7 @@ buildscript {
     }
     dependencies {
         classpath "com.haulmont.gradle:cuba-plugin:$cubaVersion"
+        classpath "gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:${querydslPluginVersion}"
     }
 }
 
@@ -99,17 +104,33 @@ configure([globalModule, coreModule, webModule]) {
 }
 
 configure(globalModule) {
+    apply(plugin: 'com.ewerk.gradle.plugins.querydsl')
+
     dependencies {
         if (!JavaVersion.current().isJava8()) {
             runtime('javax.xml.bind:jaxb-api:2.3.1')
             runtime('org.glassfish.jaxb:jaxb-runtime:2.3.1')
         }
+
+        //annotationProcessor("com.querydsl:querydsl-apt:4.2.1:jpa")
+        compile group: 'com.haulmont.cuba', name: 'cuba-global-querydsl', version: cubaVersion
+        compile group: 'com.querydsl', name: 'querydsl-jpa', version: '4.1.4'
+        compile group: 'com.querydsl', name: 'querydsl-apt', version: '4.1.4'
     }
 
     entitiesEnhancing {
         main {
             enabled = true
         }
+    }
+
+    querydsl {
+        jpa = true
+        querydslSourcesDir = "$buildDir/generated"
+    }
+
+    compileQuerydsl {
+        options.annotationProcessorPath = configurations.querydsl
     }
 }
 

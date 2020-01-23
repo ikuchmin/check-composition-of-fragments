@@ -23,6 +23,7 @@
             </DependencyModelState>
           </list>
         </option>
+        <option name="mavenLocal" value="true" />
         <option name="artifactGroup" value="com.company.checkcompositionoffragments" />
         <option name="artifactVersion" value="0.1" />
         <option name="artifactSnapshot" value="true" />
@@ -36,7 +37,7 @@
     </option>
     <option name="dbArtifacts">
       <map>
-        <entry key="com.haulmont.cuba" value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.haulmont.cuba/cuba-core/7.2-SNAPSHOT/e8bea7a4547bf6791a8d201c45f8691f0b997cb8/cuba-core-7.2-SNAPSHOT-db.zip" />
+        <entry key="com.haulmont.cuba" value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.haulmont.cuba/cuba-core/7.2-SNAPSHOT/c7c496cd0cc8e4149ed23c139a9b37b582351e48/cuba-core-7.2-SNAPSHOT-db.zip" />
       </map>
     </option>
   </component>
