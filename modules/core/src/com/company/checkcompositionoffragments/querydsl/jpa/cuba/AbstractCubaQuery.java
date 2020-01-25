@@ -3,48 +3,37 @@ package com.company.checkcompositionoffragments.querydsl.jpa.cuba;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.haulmont.cuba.core.TransactionalDataManager;
+import com.haulmont.cuba.core.entity.Entity;
+import com.haulmont.cuba.core.global.LoadContext;
+import com.haulmont.cuba.core.global.LoadContext.Query;
 import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.DefaultQueryMetadata;
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.core.QueryMetadata;
 import com.querydsl.core.QueryModifiers;
 import com.querydsl.core.QueryResults;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.FactoryExpression;
 import com.querydsl.jpa.EclipseLinkTemplates;
 import com.querydsl.jpa.JPQLTemplates;
 import com.querydsl.jpa.QueryHandler;
-import com.querydsl.jpa.impl.JPAUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import javax.annotation.Nullable;
-import javax.persistence.FlushModeType;
-import javax.persistence.LockModeType;
-import javax.persistence.Query;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractCubaQuery<T, Q extends AbstractCubaQuery<T, Q>> extends CubaQueryBase<T, Q> {
 
+    private static final long serialVersionUID = 5397497620388267860L;
+
     private static final Logger logger = LoggerFactory.getLogger(AbstractCubaQuery.class);
 
     protected final Multimap<String,Object> hints = LinkedHashMultimap.create();
 
-    protected final TransactionalDataManager transactionalDataManager;
+    protected final TransactionalDataManager txDm;
 
     protected final QueryHandler queryHandler;
-
-    @Nullable
-    protected LockModeType lockMode;
-
-    @Nullable
-    protected FlushModeType flushMode;
-
-    @Nullable
-    protected FactoryExpression<?> projection;
 
     public AbstractCubaQuery(TransactionalDataManager dm) {
         this(dm, EclipseLinkTemplates.DEFAULT, new DefaultQueryMetadata());
@@ -53,17 +42,12 @@ public abstract class AbstractCubaQuery<T, Q extends AbstractCubaQuery<T, Q>> ex
     public AbstractCubaQuery(TransactionalDataManager dm, JPQLTemplates templates, QueryMetadata metadata) {
         super(metadata, templates);
         this.queryHandler = templates.getQueryHandler();
-        this.transactionalDataManager = dm;
+        this.txDm = dm;
     }
 
     @Override
     public long fetchCount() {
-        try {
-            Query query = createQuery(null, true);
-            return (Long) query.getSingleResult();
-        } finally {
-            reset();
-        }
+        throw new UnsupportedOperationException("Cuba TransactionDataManager doesn't support fetch count");
     }
 
     /**
@@ -71,16 +55,19 @@ public abstract class AbstractCubaQuery<T, Q extends AbstractCubaQuery<T, Q>> ex
      *
      * @return query
      */
-    public Query createQuery() {
-        return createQuery(getMetadata().getModifiers(), false);
+    public LoadContext<?> createLoadContext() {
+        return createLoadContext(getMetadata().getModifiers(), false);
     }
 
-    private Query createQuery(@Nullable QueryModifiers modifiers, boolean forCount) {
+    private LoadContext<?> createLoadContext(@Nullable QueryModifiers modifiers, boolean forCount) {
         CubaJpqlSerializer serializer = serialize(forCount);
         String queryString = serializer.toString();
         logQuery(queryString, serializer.getConstantToLabel());
-        Query query = entityManager.createQuery(queryString);
-        JPAUtil.setConstants(query, serializer.getConstantToLabel(), getMetadata().getParams()); // !!!
+
+        Query query = LoadContext.createQuery(queryString);
+
+        CubaUtil.setConstants(query, serializer.getConstantToLabel(), getMetadata().getParams()); // !!!
+
         if (modifiers != null && modifiers.isRestricting()) {
             Integer limit = modifiers.getLimitAsInteger();
             Integer offset = modifiers.getOffsetAsInteger();
@@ -91,96 +78,60 @@ public abstract class AbstractCubaQuery<T, Q extends AbstractCubaQuery<T, Q>> ex
                 query.setFirstResult(offset);
             }
         }
-        if (lockMode != null) {
-            query.setLockMode(lockMode);
-        }
-        if (flushMode != null) {
-            query.setFlushMode(flushMode);
-        }
+
+        Class<? extends Entity> entityClass =
+                (Class<? extends Entity>) getMetadata().getProjection().getType();
+
+        LoadContext<? extends Entity> loadContext =
+                LoadContext.create(entityClass)
+                        .setQuery(query);
 
         for (Map.Entry<String, Object> entry : hints.entries()) {
-            query.setHint(entry.getKey(), entry.getValue());
+            loadContext.setHint(entry.getKey(), entry.getValue());
         }
 
-        // set transformer, if necessary and possible
-        Expression<?> projection = getMetadata().getProjection();
-        this.projection = null; // necessary when query is reused
-
-        if (!forCount && projection instanceof FactoryExpression) {
-            if (!queryHandler.transform(query, (FactoryExpression<?>) projection)) {
-                this.projection = (FactoryExpression) projection;
-            }
-        }
-
-        return query;
+        return loadContext;
     }
 
     /**
      * Transforms results using FactoryExpression if ResultTransformer can't be used
      *
-     * @param query query
+     * @param loadContext loadContext
      * @return results
      */
-    private List<?> getResultList(Query query) {
-        // TODO : use lazy fetch here?
-        if (projection != null) {
-            List<?> results = query.getResultList();
-            List<Object> rv = new ArrayList<Object>(results.size());
-            for (Object o : results) {
-                if (o != null) {
-                    if (!o.getClass().isArray()) {
-                        o = new Object[]{o};
-                    }
-                    rv.add(projection.newInstance((Object[]) o));
-                } else {
-                    rv.add(null);
-                }
-            }
-            return rv;
-        } else {
-            return query.getResultList();
-        }
+    private List<?> getResultList(LoadContext<?> loadContext) {
+        return txDm.loadList(loadContext);
     }
 
     /**
      * Transforms results using FactoryExpression if ResultTransformer can't be used
      *
-     * @param query query
+     * @param loadContext loadContext
      * @return single result
      */
     @Nullable
-    private Object getSingleResult(Query query) {
-        if (projection != null) {
-            Object result = query.getSingleResult();
-            if (result != null) {
-                if (!result.getClass().isArray()) {
-                    result = new Object[]{result};
-                }
-                return projection.newInstance((Object[]) result);
-            } else {
-                return null;
-            }
-        } else {
-            return query.getSingleResult();
-        }
+    private Object getSingleResult(LoadContext<?> loadContext) {
+        return txDm.load(loadContext);
     }
 
     @Override
     public CloseableIterator<T> iterate() {
-        try {
-            Query query = createQuery();
-            return queryHandler.iterate(query, projection);
-        } finally {
-            reset();
-        }
+
+        throw new UnsupportedOperationException("Implement");
+//        try {
+//            Query query = createLoadContext();
+//            return queryHandler.iterate(query, projection);
+//        } finally {
+//            reset();
+//        }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<T> fetch() {
         try {
-            Query query = createQuery();
-            return (List<T>) getResultList(query);
+            LoadContext loadContext = createLoadContext();
+            return (List<T>) getResultList(loadContext);
         } finally {
             reset();
         }
@@ -189,11 +140,12 @@ public abstract class AbstractCubaQuery<T, Q extends AbstractCubaQuery<T, Q>> ex
     @Override
     public QueryResults<T> fetchResults() {
         try {
-            Query countQuery = createQuery(null, true);
-            long total = (Long) countQuery.getSingleResult();
+            LoadContext<?> countQuery = createLoadContext(null, true);
+            long total = 10; //(Long) txDm.lo(countQuery, Long.class);
+
             if (total > 0) {
                 QueryModifiers modifiers = getMetadata().getModifiers();
-                Query query = createQuery(modifiers, false);
+                LoadContext query = createLoadContext(modifiers, false);
                 @SuppressWarnings("unchecked")
                 List<T> list = (List<T>) getResultList(query);
                 return new QueryResults<T>(list, modifiers, total);
@@ -230,8 +182,10 @@ public abstract class AbstractCubaQuery<T, Q extends AbstractCubaQuery<T, Q>> ex
     @Override
     public T fetchOne() {
         try {
-            Query query = createQuery(getMetadata().getModifiers(), false);
-            return (T) getSingleResult(query);
+            LoadContext<?> loadContext =
+                    createLoadContext(getMetadata().getModifiers(), false);
+
+            return (T) getSingleResult(loadContext);
         } catch (javax.persistence.NoResultException e) {
             logger.trace(e.getMessage(),e);
             return null;
@@ -243,12 +197,6 @@ public abstract class AbstractCubaQuery<T, Q extends AbstractCubaQuery<T, Q>> ex
     }
 
     @SuppressWarnings("unchecked")
-    public Q setFlushMode(FlushModeType flushMode) {
-        this.flushMode = flushMode;
-        return (Q) this;
-    }
-
-    @SuppressWarnings("unchecked")
     public Q setHint(String name, Object value) {
         hints.put(name, value);
         return (Q) this;
@@ -256,14 +204,11 @@ public abstract class AbstractCubaQuery<T, Q extends AbstractCubaQuery<T, Q>> ex
 
     @Override
     protected CubaJpqlSerializer createSerializer() {
-        return new CubaJpqlSerializer(getTemplates(), transactionalDataManager);
+        return new CubaJpqlSerializer(getTemplates(), txDm);
     }
 
     protected void clone(Q query) {
-        projection = query.projection;
-        flushMode = query.flushMode;
         hints.putAll(query.hints);
-        lockMode = query.lockMode;
     }
 
     /**
@@ -291,6 +236,6 @@ public abstract class AbstractCubaQuery<T, Q extends AbstractCubaQuery<T, Q>> ex
      */
     @Override
     public Q clone() {
-        return clone(transactionalDataManager, getTemplates());
+        return clone(txDm, getTemplates());
     }
 }

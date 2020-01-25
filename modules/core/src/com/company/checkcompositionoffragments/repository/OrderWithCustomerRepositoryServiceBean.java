@@ -3,16 +3,14 @@ package com.company.checkcompositionoffragments.repository;
 import com.company.checkcompositionoffragments.core.paging.Pageable;
 import com.company.checkcompositionoffragments.dto.OrderWithCustomerDbView;
 import com.company.checkcompositionoffragments.dto.QOrderWithCustomerDbView;
-import com.company.checkcompositionoffragments.entity.QCustomer;
 import com.company.checkcompositionoffragments.exception.UnsupportedFilterException;
 import com.company.checkcompositionoffragments.filter.Filter;
 import com.company.checkcompositionoffragments.filter.FilterSpecification;
 import com.company.checkcompositionoffragments.filter.orderwithcustomer.ByCustomerNameContains;
+import com.company.checkcompositionoffragments.querydsl.jpa.cuba.CubaQuery;
 import com.company.checkcompositionoffragments.querydsl.jpa.cuba.CubaQueryFactory;
 import com.haulmont.cuba.core.TransactionalDataManager;
 import com.haulmont.cuba.core.global.Sort;
-import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -41,19 +39,19 @@ public class OrderWithCustomerRepositoryServiceBean implements OrderWithCustomer
 
         checkFilterIsSupported(filter, findAllOrderWithCustomersSupportedFilters());
 
+        Class<OrderWithCustomerDbView> orderWithCustomerDbViewClass = OrderWithCustomerDbView.class;
 
-        JPAQueryFactory queryFactory = new CubaQueryFactory(txDm);
-        QCustomer customer = QCustomer.customer;
+        CubaQueryFactory queryFactory = new CubaQueryFactory(txDm);
 
         QOrderWithCustomerDbView orderWithCustomer = QOrderWithCustomerDbView.orderWithCustomerDbView;
 
-        var orderWithCustomerQuery = queryFactory.selectFrom(orderWithCustomer);
+        CubaQuery<OrderWithCustomerDbView> orderWithCustomerQuery = queryFactory.selectFrom(orderWithCustomer);
 
         // apply filters
         for (FilterSpecification<OrderWithCustomerDbView> spec : filter.getSpecifications()) {
 
             // effectively final trick
-            var finalOrderWithCustomerQuery = orderWithCustomerQuery;
+            CubaQuery<OrderWithCustomerDbView> finalOrderWithCustomerQuery = orderWithCustomerQuery;
             orderWithCustomerQuery = Match(spec).of(
                     Case($(instanceOf(ByCustomerNameContains.class)),
                             f -> applyByCustomerNameContainsFilter(finalOrderWithCustomerQuery, f)));
@@ -66,7 +64,7 @@ public class OrderWithCustomerRepositoryServiceBean implements OrderWithCustomer
             orderWithCustomerQuery = applySort(orderWithCustomerQuery, sort);
         }
 
-        var orderWithCustomerDbViews = orderWithCustomerQuery.fetch();
+        List<OrderWithCustomerDbView> orderWithCustomerDbViews = orderWithCustomerQuery.fetch();
 
         // apply pagination
 //        ByQuery<OrderWithCustomerDbView, UUID> dmQueryWithPagination = dmQuery;
@@ -83,7 +81,7 @@ public class OrderWithCustomerRepositoryServiceBean implements OrderWithCustomer
         return ! sort.getOrders().isEmpty();
     }
 
-    protected JPAQuery<OrderWithCustomerDbView> applySort(JPAQuery<OrderWithCustomerDbView> query, Sort sort) {
+    protected CubaQuery<OrderWithCustomerDbView> applySort(CubaQuery<OrderWithCustomerDbView> query, Sort sort) {
 
 //        query.orderBy()
 //        String orderLine = sort.getOrders().stream()
@@ -117,10 +115,10 @@ public class OrderWithCustomerRepositoryServiceBean implements OrderWithCustomer
         return Arrays.asList(ByCustomerNameContains.class);
     }
 
-    private JPAQuery<OrderWithCustomerDbView> applyByCustomerNameContainsFilter(JPAQuery<OrderWithCustomerDbView> query,
-                                                                                ByCustomerNameContains filter) {
+    private CubaQuery<OrderWithCustomerDbView> applyByCustomerNameContainsFilter(CubaQuery<OrderWithCustomerDbView> query,
+                                                                                 ByCustomerNameContains filter) {
 
-        var orderWithCustomer = QOrderWithCustomerDbView.orderWithCustomerDbView;
+        QOrderWithCustomerDbView orderWithCustomer = QOrderWithCustomerDbView.orderWithCustomerDbView;
 
         return query.where(orderWithCustomer.customer.like(filter.getCustomerNameFragment()));
     }

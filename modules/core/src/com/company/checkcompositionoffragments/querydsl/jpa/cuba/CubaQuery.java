@@ -5,7 +5,6 @@ import com.querydsl.core.DefaultQueryMetadata;
 import com.querydsl.core.QueryMetadata;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
-import com.querydsl.jpa.EclipseLinkTemplates;
 import com.querydsl.jpa.JPQLTemplates;
 
 public class CubaQuery<T> extends AbstractCubaQuery<T, CubaQuery<T>> {
@@ -26,7 +25,7 @@ public class CubaQuery<T> extends AbstractCubaQuery<T, CubaQuery<T>> {
      * @param dm entity manager
      */
     public CubaQuery(TransactionalDataManager dm) {
-        super(dm, EclipseLinkTemplates.DEFAULT, new DefaultQueryMetadata());
+        super(dm, CubaTemplates.DEFAULT, new DefaultQueryMetadata());
     }
 
     /**
@@ -36,7 +35,7 @@ public class CubaQuery<T> extends AbstractCubaQuery<T, CubaQuery<T>> {
      * @param metadata query metadata
      */
     public CubaQuery(TransactionalDataManager dm, QueryMetadata metadata) {
-        super(dm, EclipseLinkTemplates.DEFAULT, metadata);
+        super(dm, CubaTemplates.DEFAULT, metadata);
     }
 
     /**
@@ -69,7 +68,7 @@ public class CubaQuery<T> extends AbstractCubaQuery<T, CubaQuery<T>> {
 
     @Override
     public CubaQuery<T> clone(TransactionalDataManager dataManager) {
-        return clone(dataManager, EclipseLinkTemplates.DEFAULT);
+        return clone(dataManager, CubaTemplates.DEFAULT);
     }
 
     @Override

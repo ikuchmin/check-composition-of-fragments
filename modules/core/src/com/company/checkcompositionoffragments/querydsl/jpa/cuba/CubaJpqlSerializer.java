@@ -88,7 +88,7 @@ public class CubaJpqlSerializer extends SerializerBase<CubaJpqlSerializer> {
 
     private final JPQLTemplates templates;
 
-    private final TransactionalDataManager transactionalDataManager;
+    private final TransactionalDataManager txDm;
 
     private boolean inProjection = false;
 
@@ -112,7 +112,7 @@ public class CubaJpqlSerializer extends SerializerBase<CubaJpqlSerializer> {
     public CubaJpqlSerializer(JPQLTemplates templates, TransactionalDataManager txDm) {
         super(templates);
         this.templates = templates;
-        this.transactionalDataManager = txDm;
+        this.txDm = txDm;
     }
 
     private String getEntityName(Class<?> clazz) {
@@ -467,9 +467,9 @@ public class CubaJpqlSerializer extends SerializerBase<CubaJpqlSerializer> {
         if (rhs.getConstant().isEmpty()) {
             operator = operator == Ops.IN ? Ops.EQ : Ops.NE;
             args = ImmutableList.of(Expressions.ONE, Expressions.TWO);
-        } else if (transactionalDataManager != null && !templates.isPathInEntitiesSupported() && args.get(0).getType().isAnnotationPresent(Entity.class)) {
-            final Metamodel metamodel = transactionalDataManager.getMetamodel();
-            final PersistenceUnitUtil util = transactionalDataManager.getEntityManagerFactory().getPersistenceUnitUtil();
+        } else if (txDm != null && !templates.isPathInEntitiesSupported() && args.get(0).getType().isAnnotationPresent(Entity.class)) {
+            final Metamodel metamodel = null ; //txDm.getMetamodel();
+            final PersistenceUnitUtil util = null; //txDm.getEntityManagerFactory().getPersistenceUnitUtil();
             final EntityType<?> entityType = metamodel.entity(args.get(0).getType());
             if (entityType.hasSingleIdAttribute()) {
                 SingularAttribute<?,?> id = getIdProperty(entityType);

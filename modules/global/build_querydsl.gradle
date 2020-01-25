@@ -1,0 +1,89 @@
+buildscript {
+    ext {
+        cubaVersion = '7.2-SNAPSHOT'
+        querydslPluginVersion = '1.0.10'
+    }
+    repositories {
+        maven {
+            url 'https://repo.cuba-platform.com/content/groups/work'
+
+            credentials {
+                username(rootProject.hasProperty('repoUser') ? rootProject['repoUser'] : 'cuba')
+                password(rootProject.hasProperty('repoPass') ? rootProject['repoPass'] : 'cuba123')
+            }
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:${querydslPluginVersion}"
+    }
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url 'https://repo.cuba-platform.com/content/groups/work'
+
+        credentials {
+            username(rootProject.hasProperty('repoUser') ? rootProject['repoUser'] : 'cuba')
+            password(rootProject.hasProperty('repoPass') ? rootProject['repoPass'] : 'cuba123')
+        }
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'com.ewerk.gradle.plugins.querydsl'
+apply plugin: "maven-publish"
+
+
+dependencies {
+
+    compile group: 'com.haulmont.cuba', name: 'cuba-global-querydsl', version: cubaVersion
+    //annotationProcessor("com.querydsl:querydsl-apt:4.2.1:jpa")
+    compile group: 'com.querydsl', name: 'querydsl-jpa', version: '4.1.4'
+    compile group: 'com.querydsl', name: 'querydsl-apt', version: '4.1.4'
+}
+
+
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/com/company/checkcompositionoffragments/entity', 'src/com/company/checkcompositionoffragments/dto']
+        }
+    }
+}
+
+
+
+querydsl {
+    jpa = true
+    querydslSourcesDir = "$buildDir/generated"
+}
+
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
+}
+
+
+
+jar {
+    from "$buildDir/generated"
+    exclude '**/sources/**'
+    exclude '**/dummy/**'
+    include '**/Q*.class'
+    manifest {
+        attributes("Implementation-Version": '0.1-SNAPSHOT')
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.company.checkcompositionoffragments'
+            artifactId = 'app-global-querydsl'
+            version = '0.1-SNAPSHOT'
+
+            from components.java
+        }
+    }
+}

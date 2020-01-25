@@ -13,6 +13,9 @@ import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.JPQLTemplates;
 
 public abstract class CubaQueryBase<T, Q extends CubaQueryBase<T, Q>> extends FetchableSubQueryBase<T, Q> implements JPQLQuery<T> {
+
+    private static final long serialVersionUID = 8062566124236044336L;
+
     protected final JPAQueryMixin<Q> queryMixin;
 
     private final JPQLTemplates templates;
@@ -71,7 +74,7 @@ public abstract class CubaQueryBase<T, Q extends CubaQueryBase<T, Q>> extends Fe
     @SuppressWarnings("unchecked")
     @Override
     public <P> Q from(CollectionExpression<?,P> target, Path<P> alias) {
-        return queryMixin.from(Expressions.as((Path) target, alias));
+        return queryMixin.from(Expressions.as((Path<P>) target, alias));
     }
 
     @Override

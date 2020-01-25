@@ -112,8 +112,12 @@ configure(globalModule) {
             runtime('org.glassfish.jaxb:jaxb-runtime:2.3.1')
         }
 
-        //annotationProcessor("com.querydsl:querydsl-apt:4.2.1:jpa")
         compile group: 'com.haulmont.cuba', name: 'cuba-global-querydsl', version: cubaVersion
+        //{
+        //    exclude group: 'com.haulmont.cuba', module:'cuba-global'
+        // }
+        //compile group: 'com.company.checkcompositionoffragments', name: 'app-global-querydsl', version: '0.1-SNAPSHOT'
+        //annotationProcessor("com.querydsl:querydsl-apt:4.2.1:jpa")
         compile group: 'com.querydsl', name: 'querydsl-jpa', version: '4.1.4'
         compile group: 'com.querydsl', name: 'querydsl-apt', version: '4.1.4'
     }
