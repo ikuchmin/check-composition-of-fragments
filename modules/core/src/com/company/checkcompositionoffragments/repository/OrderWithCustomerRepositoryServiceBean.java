@@ -7,13 +7,14 @@ import com.company.checkcompositionoffragments.exception.UnsupportedFilterExcept
 import com.company.checkcompositionoffragments.filter.Filter;
 import com.company.checkcompositionoffragments.filter.FilterSpecification;
 import com.company.checkcompositionoffragments.filter.orderwithcustomer.ByCustomerNameContains;
-import com.company.checkcompositionoffragments.querydsl.jpa.cuba.CubaQuery;
-import com.company.checkcompositionoffragments.querydsl.jpa.cuba.CubaQueryFactory;
 import com.haulmont.cuba.core.TransactionalDataManager;
+import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.core.global.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ru.udya.querydsl.cuba.core.CubaQuery;
+import ru.udya.querydsl.cuba.core.CubaQueryFactory;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -33,15 +34,16 @@ public class OrderWithCustomerRepositoryServiceBean implements OrderWithCustomer
     @Inject
     protected TransactionalDataManager txDm;
 
+    @Inject
+    protected Metadata metadata;
+
     @Override
     public List<OrderWithCustomerDbView> findAllOrderWithCustomers(Filter<OrderWithCustomerDbView> filter,
                                                                    Sort sort, Pageable pageable) {
 
         checkFilterIsSupported(filter, findAllOrderWithCustomersSupportedFilters());
 
-        Class<OrderWithCustomerDbView> orderWithCustomerDbViewClass = OrderWithCustomerDbView.class;
-
-        CubaQueryFactory queryFactory = new CubaQueryFactory(txDm);
+        CubaQueryFactory queryFactory = new CubaQueryFactory(txDm, metadata);
 
         QOrderWithCustomerDbView orderWithCustomer = QOrderWithCustomerDbView.orderWithCustomerDbView;
 

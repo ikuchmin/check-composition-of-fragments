@@ -43,6 +43,8 @@ create table CHECKCOMPOSITIONOFFRAGMENTS_CUSTOMER (
     DELETED_BY varchar(50),
     --
     FIRST_NAME varchar(255),
+    CUSTOMER_TYPE varchar(50),
+    BIRTH_DAY date,
     LAST_NAME varchar(255),
     --
     primary key (ID)

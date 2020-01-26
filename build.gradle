@@ -19,7 +19,6 @@ buildscript {
     }
     dependencies {
         classpath "com.haulmont.gradle:cuba-plugin:$cubaVersion"
-        classpath "gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:${querydslPluginVersion}"
     }
 }
 
@@ -46,6 +45,7 @@ cuba {
 
 dependencies {
     appComponent("com.haulmont.cuba:cuba-global:$cubaVersion")
+    appComponent('ru.udya.querydsl.cuba:qc-global:0.1-SNAPSHOT')
 }
 
 def postgres = 'org.postgresql:postgresql:42.2.5'
@@ -104,7 +104,6 @@ configure([globalModule, coreModule, webModule]) {
 }
 
 configure(globalModule) {
-    apply(plugin: 'com.ewerk.gradle.plugins.querydsl')
 
     dependencies {
         if (!JavaVersion.current().isJava8()) {
@@ -112,29 +111,17 @@ configure(globalModule) {
             runtime('org.glassfish.jaxb:jaxb-runtime:2.3.1')
         }
 
-        compile group: 'com.haulmont.cuba', name: 'cuba-global-querydsl', version: cubaVersion
-        //{
-        //    exclude group: 'com.haulmont.cuba', module:'cuba-global'
-        // }
-        //compile group: 'com.company.checkcompositionoffragments', name: 'app-global-querydsl', version: '0.1-SNAPSHOT'
-        //annotationProcessor("com.querydsl:querydsl-apt:4.2.1:jpa")
         compile group: 'com.querydsl', name: 'querydsl-jpa', version: '4.1.4'
-        compile group: 'com.querydsl', name: 'querydsl-apt', version: '4.1.4'
+        compile group: 'com.haulmont.cuba', name: 'cuba-global-querydsl', version: cubaVersion
+
+        annotationProcessor group: 'com.querydsl', name: 'querydsl-apt', version: '4.1.4', classifier: 'jpa'
+        annotationProcessor configurations.compile
     }
 
     entitiesEnhancing {
         main {
             enabled = true
         }
-    }
-
-    querydsl {
-        jpa = true
-        querydslSourcesDir = "$buildDir/generated"
-    }
-
-    compileQuerydsl {
-        options.annotationProcessorPath = configurations.querydsl
     }
 }
 

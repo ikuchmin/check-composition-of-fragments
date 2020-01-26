@@ -6,6 +6,9 @@ import com.haulmont.cuba.core.entity.StandardEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.util.Date;
 
 @NamePattern("%s %s|firstName,lastName")
 @Table(name = "CHECKCOMPOSITIONOFFRAGMENTS_CUSTOMER")
@@ -16,8 +19,31 @@ public class Customer extends StandardEntity {
     @Column(name = "FIRST_NAME")
     protected String firstName;
 
+    @Column(name = "CUSTOMER_TYPE")
+    protected String customerType;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "BIRTH_DAY")
+    protected Date birthDay;
+
     @Column(name = "LAST_NAME")
     protected String lastName;
+
+    public Date getBirthDay() {
+        return birthDay;
+    }
+
+    public void setBirthDay(Date birthDay) {
+        this.birthDay = birthDay;
+    }
+
+    public CustomerType getCustomerType() {
+        return customerType == null ? null : CustomerType.fromId(customerType);
+    }
+
+    public void setCustomerType(CustomerType customerType) {
+        this.customerType = customerType == null ? null : customerType.getId();
+    }
 
     public String getLastName() {
         return lastName;

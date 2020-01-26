@@ -21,6 +21,11 @@
               <option name="name" value="cuba-global" />
               <option name="version" value="7.2-SNAPSHOT" />
             </DependencyModelState>
+            <DependencyModelState>
+              <option name="group" value="ru.udya.querydsl.cuba" />
+              <option name="name" value="qc-global" />
+              <option name="version" value="0.1-SNAPSHOT" />
+            </DependencyModelState>
           </list>
         </option>
         <option name="mavenLocal" value="true" />
@@ -37,7 +42,7 @@
     </option>
     <option name="dbArtifacts">
       <map>
-        <entry key="com.haulmont.cuba" value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.haulmont.cuba/cuba-core/7.2-SNAPSHOT/ec3311098a0e935939c2d3fea59ec0d5ede44117/cuba-core-7.2-SNAPSHOT-db.zip" />
+        <entry key="com.haulmont.cuba" value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.haulmont.cuba/cuba-core/7.2-SNAPSHOT/ca2d33beb894c9c9c070cbf82b5fee7729018d5b/cuba-core-7.2-SNAPSHOT-db.zip" />
       </map>
     </option>
   </component>
